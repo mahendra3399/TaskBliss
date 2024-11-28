@@ -34,4 +34,21 @@ export const GetAllTasks = async ()=> {
     } catch (error) {
        return error;
     }
- }
+ } 
+
+ export const DeleteTaskById = async (id)=> {
+   const url = `${API_URL}/tasks/${id}`;
+   const options = {
+    method : 'DELETE',
+    headers: {
+        'Content-Type': 'application/json'
+      },
+   };
+   try {
+      const  result = await fetch(url, options);
+      const data = await result.json();
+      return data;
+   } catch (error) {
+      return error;
+   }
+}

@@ -4,7 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
-import { CreateTask, GetAllTasks } from './api';
+import { CreateTask, DeleteTaskById, GetAllTasks } from './api';
 import { notify } from './utils';
 
 const TaskManager = () => {
@@ -12,40 +12,59 @@ const TaskManager = () => {
   const [tasks, setTasks] = useState([]);
   const [copyTasks, setCopyTasks] = useState([]);
 
-const handleAddTask = async ()=> {
-     const obj = {
-        taskName: input,
-        isDone: false
-     }
-     try {
-        const {success, message} = await CreateTask(obj);
-        if(success) {
-          //show success toast 
-          notify(message, 'success')
-        }else {
-          //show error toast
-          notify(message, 'error')
-        }
-        setInput('')
-     } catch (error) {
-        console.error(error);
-        notify('Failed to create task', 'error')
-     }
-  }
+  const handleAddTask = async () => {
+    const obj = {
+      taskName: input,
+      isDone: false,
+    };
+    try {
+      const { success, message } = await CreateTask(obj);
+      if (success) {
+        // Show success toast
+        notify(message, 'success');
+      } else {
+        // Show error toast
+        notify(message, 'error');
+      }
+      setInput('');
+      fetchAllTasks()
+    } catch (error) {
+      console.error(error);
+      notify('Failed to create task', 'error');
+    }
+  };
 
   const fetchAllTasks = async () => {
     try {
-        const {data} = await GetAllTasks();
-        console.log(data);
-     } catch (error) {
-        console.error(error);
-        notify('Failed to Fetch task', 'error')
-     }
-  } 
+      const { data } = await GetAllTasks();
+      setTasks(data);
+      setCopyTasks(data);
+    } catch (error) {
+      console.error(error);
+      notify('Failed to fetch tasks', 'error');
+    }
+  };
 
-  useEffect(()=> {
-    fetchAllTasks()
-  }, [])
+  useEffect(() => {
+    fetchAllTasks();
+  }, []);
+
+  const handleDeleteTask = async (id) => {
+    try {
+      const { success, message } = await DeleteTaskById(id);
+      if (success) {
+        // Show success toast
+        notify(message, 'success');
+      } else {
+        // Show error toast
+        notify(message, 'error');
+      }
+      fetchAllTasks();
+    } catch (error) {
+      console.error(error);
+      notify('Failed to delete task', 'error');
+    }
+  };
 
   return (
     <div className='container mt-5'>
@@ -56,16 +75,17 @@ const handleAddTask = async ()=> {
           {/* Input and Search box */}
           <div className='d-flex flex-column flex-md-row justify-content-between align-items-center mb-4'>
             <div className='input-group mb-3 mb-md-0 me-md-2'>
-              <input 
+              <input
                 type='text'
                 value={input}
-                onChange={(e)=> setInput(e.target.value)}
+                onChange={(e) => setInput(e.target.value)}
                 className='form-control'
                 placeholder='Add a new Task'
               />
-              <button 
-               onClick={handleAddTask}
-              className='btn btn-success btn-sm'>
+              <button
+                onClick={handleAddTask}
+                className='btn btn-success btn-sm'
+              >
                 <FaPlus />
               </button>
             </div>
@@ -84,20 +104,22 @@ const handleAddTask = async ()=> {
 
           {/* List of items */}
           <div className='d-flex flex-column'>
-            <div className='m-2 p-2 border bg-light rounded-3 d-flex justify-content-between align-items-center'>
-              <span>Task Name</span>
-              <div>
-                <button className='btn btn-success btn-sm me-2' type='button'>
-                  <FaCheck />
-                </button>
-                <button className='btn btn-primary btn-sm me-2' type='button'>
-                  <FaPencilAlt />
-                </button>
-                <button className='btn btn-danger btn-sm me-2' type='button'>
-                  <FaTrash />
-                </button>
+            {tasks.map((item) => (
+              <div key={item._id} className='m-2 p-2 border bg-light rounded-3 d-flex justify-content-between align-items-center'>
+                <span className={item.isDone ? 'text-decoration-line-through' : ''}>{item.taskName}</span>
+                <div>
+                  <button className='btn btn-success btn-sm me-2' type='button'>
+                    <FaCheck />
+                  </button>
+                  <button className='btn btn-primary btn-sm me-2' type='button'>
+                    <FaPencilAlt />
+                  </button>
+                  <button onClick={() => handleDeleteTask(item._id)} className='btn btn-danger btn-sm me-2' type='button'>
+                    <FaTrash />
+                  </button>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
 
           {/* Toastify */}
