@@ -6,12 +6,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import 'react-toastify/dist/ReactToastify.css';
 import {BrowserRouter} from 'react-router-dom'
-// import { AuthContextProvider } from './context/AuthContext.jsx'
+import { AuthContextProvider } from './context/AuthContext.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
    <BrowserRouter>
-       <App />
+   <AuthContextProvider>
+        <App />
+  </AuthContextProvider>
    </BrowserRouter>
   </React.StrictMode>,
 )

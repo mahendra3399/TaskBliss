@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import { CreateTask, DeleteTaskById, GetAllTasks, UpdateTaskById } from './api';
 import { notify } from './utils';
+import LogoutButton from "./LogOutButton.jsx";
 
 const TaskManager = () => {
   const [input, setInput] = useState('');
@@ -203,6 +204,8 @@ const TaskManager = () => {
 
           {/* Toastify */}
           <ToastContainer position='top-right' autoClose={3000} hideProgressBar={false} />
+
+          <div className='d-flex justify-content-left mt-4'> <LogoutButton /> </div>
         </div>
       </div>
     </div>

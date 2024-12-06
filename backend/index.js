@@ -1,20 +1,32 @@
-const express = require('express');
+import express from 'express';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import authRoutes from './Routes/auth.routes.js';
+import taskRouter from './Routes/TaskRouter.js'
+import userRoutes from './Routes/user.routes.js';
+import connectDB from './db/connectToMongoDB.js';
+
 const app = express();
-require('dotenv').config();
-require('./Models/db.js')
-const taskrouter = require('./Routes/TaskRouter.js')
-const cors = require('cors');
-const bodyParser = require('body-parser');
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-    res.status(200).send("Hello from server")
-})
+dotenv.config();
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use('/tasks', taskrouter);
+app.use(express.json());
+app.use(cookieParser());
+
+app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRouter);
+app.use('/api/users', userRoutes);
+
+app.get('/', (req, res) => {
+  res.status(200).send('Hello from server');
+});
 
 app.listen(PORT, () => {
-    console.log(`Server started at PORT ${PORT}`)
+  connectDB();
+  console.log(`Server started at PORT ${PORT}`);
 });
