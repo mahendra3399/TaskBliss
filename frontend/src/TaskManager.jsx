@@ -150,7 +150,7 @@ const TaskManager = () => {
     <div className='container mt-5'>
       <div className='row justify-content-center'>
         <div className='col-12 col-md-8 col-lg-6'>
-          <h1 className='mb-4 text-center'>Task Manager App</h1>
+          <h1 className='mb-4 text-center'>TaskBliss</h1>
 
           {/* Input and Search box */}
           <div className='d-flex flex-column flex-md-row justify-content-between align-items-center mb-4'>

@@ -17,7 +17,7 @@ const Login = () => {
     <div className="d-flex flex-column align-items-center justify-content-center min-vh-100">
       <div className="card p-4 rounded shadow-lg bg-light" style={{ maxWidth: "500px", width: "100%" }}>
         <h1 className="text-center mb-4">
-          Login <span className="text-primary">TaskApp</span>
+          Login <span className="text-primary">TaskBliss</span>
         </h1>
 
         <form onSubmit={handleSubmit}>
