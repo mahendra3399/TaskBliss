@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import { CreateTask, DeleteTaskById, GetAllTasks, UpdateTaskById } from './api';
-import { notify } from './utils';
+import { notify } from './utils.jsx';
 import LogoutButton from "./LogOutButton.jsx";
 
 const TaskManager = () => {

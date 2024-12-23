@@ -21,8 +21,10 @@ const useLogin = () => {
 			if (data.error) {
 				throw new Error(data.error);
 			}
+			const { jwtToken } = data;
 
 			localStorage.setItem("task-user", JSON.stringify(data));
+			localStorage.setItem('token', jwtToken);
 			setAuthUser(data);
 		} catch (error) {
 			toast.error(error.message);

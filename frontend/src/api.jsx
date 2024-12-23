@@ -1,4 +1,4 @@
-import { API_URL } from "./utils"
+import { API_URL } from "./utils.jsx"
 
 
 export const CreateTask = async (taskObj)=> {
@@ -24,7 +24,8 @@ export const GetAllTasks = async ()=> {
     const options = {
      method : 'GET',
      headers: {
-         'Content-Type': 'application/json'
+         'Content-Type': 'application/json',
+         'Authorization': localStorage.getItem('token')
        },
     };
     try {
