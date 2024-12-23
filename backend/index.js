@@ -5,7 +5,6 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import authRoutes from './Routes/auth.routes.js';
 import taskRouter from './Routes/TaskRouter.js'
-import userRoutes from './Routes/user.routes.js';
 import connectDB from './db/connectToMongoDB.js';
 
 const app = express();
@@ -20,7 +19,6 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRouter);
-app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).send('Hello from server');

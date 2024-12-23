@@ -1,6 +1,9 @@
 import User from "../Models/user.model.js";
-import bcrypt from "bcryptjs";
-import generateTokenAndSetCookie from "../utils/generateToken.js";
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const signup = async (req, res) => {
     try {
@@ -36,8 +39,6 @@ export const signup = async (req, res) => {
         });
 
         if(newUser) {
-        // Generate JWT token
-        generateTokenAndSetCookie(newUser._id, res);
         await newUser.save();
 
         res.status(201).json({
@@ -70,12 +71,17 @@ export const login = async (req,res) => {
             return res.status(400).json({ error: "Invalid password" });
         }
 
-        generateTokenAndSetCookie(user._id, res);
+        const jwtToken = jwt.sign(
+            { username: user.username, _id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        )
 
         res.status(201).json({
             _id: user._id,
             fullName: user.fullName,
             username: user.username,
+            jwtToken
         });
 
     } catch (error) {
