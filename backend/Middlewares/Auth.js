@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 const ensureAuthenticated = (req, res, next) => {
-    const auth = req.headers['authorization'];
+    const auth = req.headers['Authorization'];
     if (!auth) {
         return res.status(403)
             .json({ message: 'Unauthorized, JWT token is require' });
@@ -16,4 +16,4 @@ const ensureAuthenticated = (req, res, next) => {
     }
 }
 
-module.exports = ensureAuthenticated;
+export default ensureAuthenticated;

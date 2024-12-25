@@ -76,7 +76,8 @@ export const login = async (req,res) => {
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         )
-
+        
+        res.setHeader('Authorization', `${jwtToken}`);
         res.status(201).json({
             _id: user._id,
             fullName: user.fullName,
