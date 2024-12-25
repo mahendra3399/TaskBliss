@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 
 const ensureAuthenticated = (req, res, next) => {
-    const auth = req.headers['Authorization'];
+    const auth = req.cookies.jwt;
     if (!auth) {
         return res.status(403)
             .json({ message: 'Unauthorized, JWT token is require' });

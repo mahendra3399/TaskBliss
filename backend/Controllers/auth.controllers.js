@@ -76,6 +76,13 @@ export const login = async (req,res) => {
             process.env.JWT_SECRET,
             { expiresIn: '24h' }
         )
+
+        res.cookie('jwt', jwtToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        });
         
         res.setHeader('Authorization', `${jwtToken}`);
         res.status(201).json({

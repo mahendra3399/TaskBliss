@@ -184,7 +184,7 @@ const TaskManager = () => {
 
           {/* List of items */}
           <div className='d-flex flex-column'>
-            {tasks.map((item) => (
+            {(tasks|| []).map((item) => (
               <div key={item._id} className='m-2 p-2 border bg-light rounded-3 d-flex justify-content-between align-items-center'>
                 <span className={item.isDone ? 'text-decoration-line-through' : ''}>{item.taskName}</span>
                 <div>
