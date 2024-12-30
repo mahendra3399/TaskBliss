@@ -1,74 +1,46 @@
-import { API_URL } from "./utils.jsx"
+import axios from 'axios';
+import { API_URL } from "./utils.jsx";
 
-
-export const CreateTask = async (taskObj)=> {
-   const url = `${API_URL}/tasks`;
-   const options = {
-    method : 'POST',
+const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true, // Ensure cookies are sent with requests
     headers: {
         'Content-Type': 'application/json'
-       },
-    body: JSON.stringify(taskObj)
-   };
-   try {
-      const  result = await fetch(url, options);
-      const data = await result.json();
-      return data;
-   } catch (error) {
-      return error;
-   }
-}
-
-export const GetAllTasks = async ()=> {
-    const url = `${API_URL}/tasks`;
-    const options = {
-     method : 'GET',
-     headers: {
-         'Content-Type': 'application/json',
-         'Authorization': localStorage.getItem('token')
-       },
-    };
-    try {
-       const  result = await fetch(url, options);
-       const data = await result.json();
-       return data;
-    } catch (error) {
-       return error;
     }
- } 
+});
 
- export const DeleteTaskById = async (id)=> {
-   const url = `${API_URL}/tasks/${id}`;
-   const options = {
-    method : 'DELETE',
-    headers: {
-        'Content-Type': 'application/json'
-      },
-   };
-   try {
-      const  result = await fetch(url, options);
-      const data = await result.json();
-      return data;
-   } catch (error) {
-      return error;
-   }
-}
+export const CreateTask = async (taskObj) => {
+    try {
+        const response = await api.post('/tasks', taskObj);
+        return response.data;
+    } catch (error) {
+        return error.response ? error.response.data : { error: 'Network Error' };
+    }
+};
 
+export const GetAllTasks = async () => {
+    try {
+        const response = await api.get('/tasks');
+        return response.data;
+    } catch (error) {
+        return error.response ? error.response.data : { error: 'Network Error' };
+    }
+};
 
-export const UpdateTaskById = async (id, reqBody)=> {
-   const url = `${API_URL}/tasks/${id}`;
-   const options = {
-    method : 'PUT',
-    headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(reqBody)
-   };
-   try {
-      const  result = await fetch(url, options);
-      const data = await result.json();
-      return data;
-   } catch (error) {
-      return error;
-   }
-}
+export const UpdateTask = async (id, taskObj) => {
+    try {
+        const response = await api.put(`/tasks/${id}`, taskObj);
+        return response.data;
+    } catch (error) {
+        return error.response ? error.response.data : { error: 'Network Error' };
+    }
+};
+
+export const DeleteTaskById = async (id) => {
+    try {
+        const response = await api.delete(`/tasks/${id}`);
+        return response.data;
+    } catch (error) {
+        return error.response ? error.response.data : { error: 'Network Error' };
+    }
+};

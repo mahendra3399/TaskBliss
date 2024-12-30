@@ -4,7 +4,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
-import { CreateTask, DeleteTaskById, GetAllTasks, UpdateTaskById } from './api';
+import { CreateTask, DeleteTaskById, GetAllTasks, UpdateTask } from './api';
 import { notify } from './utils.jsx';
 import LogoutButton from "./LogOutButton.jsx";
 
@@ -14,62 +14,17 @@ const TaskManager = () => {
   const [copyTasks, setCopyTasks] = useState([]);
   const [updateTask, setUpdateTask] = useState(null);
 
-
-  const handleTask = ()=> {
-       if(updateTask && input) {
-        //update api call
-        console.log('update api call');
-        const obj = {
-          taskName: input,
-          isDone: updateTask.isDone,
-          _id: updateTask._id
-        }
-        handleUpdateItem(obj);
-        setInput('');
-        setUpdateTask(null);
-       }
-       else if(updateTask == null && input) {
-        //create api call
-        handleAddTask();
-       }
-  }
-
-  useEffect(()=> {
-     if(updateTask) {
-      setInput(updateTask.taskName);
-     }
-  }, [updateTask])
-
-
-  const handleAddTask = async () => {
-    const obj = {
-      taskName: input,
-      isDone: false,
-    };
-    try {
-      const { success, message } = await CreateTask(obj);
-      if (success) {
-        // Show success toast
-        notify(message, 'success');
-      } else {
-        // Show error toast
-        notify(message, 'error');
-      }
-      setInput('');
-      fetchAllTasks()
-    } catch (error) {
-      console.error(error);
-      notify('Failed to create task', 'error');
-    }
-  };
-
   const fetchAllTasks = async () => {
     try {
-      const { data } = await GetAllTasks();
-      setTasks(data);
-      setCopyTasks(data);
+      const { data, success, message } = await GetAllTasks();
+      if (success) {
+        setTasks(data);
+        setCopyTasks(data);
+      } else {
+        notify(message, 'error');
+      }
     } catch (error) {
-      console.error(error);
+      console.error('Error fetching tasks:', error);
       notify('Failed to fetch tasks', 'error');
     }
   };
@@ -78,136 +33,120 @@ const TaskManager = () => {
     fetchAllTasks();
   }, []);
 
+  const handleTask = async () => {
+    if (updateTask && input) {
+      // Update task
+      const obj = {
+        taskName: input,
+        isDone: updateTask.isDone,
+        _id: updateTask._id
+      };
+      await handleUpdateItem(obj);
+      setInput('');
+      setUpdateTask(null);
+    } else if (updateTask == null && input) {
+      // Create new task
+      await handleCreateTask();
+      setInput('');
+    }
+  };
+
+  const handleCreateTask = async () => {
+    try {
+      const { success, message, data } = await CreateTask({ taskName: input, isDone: false });
+      if (success) {
+        setTasks([...tasks, data]);
+        setCopyTasks([...tasks, data]);
+        notify(message, 'success');
+      } else {
+        notify(message, 'error');
+      }
+    } catch (error) {
+      console.error('Error creating task:', error);
+      notify('Failed to create task', 'error');
+    }
+  };
+
+  const handleUpdateItem = async (item) => {
+    try {
+      const { success, message, data } = await UpdateTask(item._id, item);
+      if (success) {
+        setTasks(tasks.map(task => (task._id === item._id ? data : task)));
+        setCopyTasks(tasks.map(task => (task._id === item._id ? data : task)));
+        notify(message, 'success');
+      } else {
+        notify(message, 'error');
+      }
+    } catch (error) {
+      console.error('Error updating task:', error);
+      notify('Failed to update task', 'error');
+    }
+  };
+
   const handleDeleteTask = async (id) => {
     try {
       const { success, message } = await DeleteTaskById(id);
       if (success) {
-        // Show success toast
+        setTasks(tasks.filter(task => task._id !== id));
+        setCopyTasks(tasks.filter(task => task._id !== id));
         notify(message, 'success');
       } else {
-        // Show error toast
         notify(message, 'error');
       }
-      fetchAllTasks();
     } catch (error) {
-      console.error(error);
+      console.error('Error deleting task:', error);
       notify('Failed to delete task', 'error');
     }
   };
 
   const handleCheckAndUncheck = async (item) => {
-     const {_id, isDone, taskName} = item;
-     const obj = {
-      taskName,
-      isDone : !isDone
-     }
-     try {
-      const { success, message } = await UpdateTaskById(_id, obj);
-      if (success) {
-        // Show success toast
-        notify(message, 'success');
-      } else {
-        // Show error toast
-        notify(message, 'error');
-      }
-      fetchAllTasks();
-    } catch (error) {
-      console.error(error);
-      notify('Failed to check task', 'error');
-    }
-  }
-
-  const handleUpdateItem = async (item)=> {
-    const {_id, isDone, taskName} = item;
     const obj = {
-     taskName,
-     isDone : isDone
-    }
-    try {
-     const { success, message } = await UpdateTaskById(_id, obj);
-     if (success) {
-       // Show success toast
-       notify(message, 'success');
-     } else {
-       // Show error toast
-       notify(message, 'error');
-     }
-     fetchAllTasks();
-   } catch (error) {
-     console.error(error);
-     notify('Failed to delete task', 'error');
-   }
-  }
+      ...item,
+      isDone: !item.isDone
+    };
+    await handleUpdateItem(obj);
+  };
 
-  const handleSearch = (e) => {
-      const term = e.target.value.toLowerCase();
-      const oldTasks = [...copyTasks];
-      const result = oldTasks.filter((item)=> item.taskName.toLowerCase().includes(term));
-      setTasks(result);
-  }
+  const handleEditTask = (task) => {
+    setInput(task.taskName);
+    setUpdateTask(task);
+  };
 
   return (
-    <div className='container mt-5'>
-      <div className='row justify-content-center'>
-        <div className='col-12 col-md-8 col-lg-6'>
-          <h1 className='mb-4 text-center'>TaskBliss</h1>
-
-          {/* Input and Search box */}
-          <div className='d-flex flex-column flex-md-row justify-content-between align-items-center mb-4'>
-            <div className='input-group mb-3 mb-md-0 me-md-2'>
-              <input
-                type='text'
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                className='form-control'
-                placeholder='Add a new Task'
-              />
-              <button
-                onClick={handleTask}
-                className='btn btn-success btn-sm'
-              >
-                <FaPlus />
+    <div className="container">
+      <ToastContainer />
+      <LogoutButton />
+      <h1 className="text-center my-4">Task Manager</h1>
+      <div className="input-group mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Add a new task"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <button className="btn btn-primary" onClick={handleTask}>
+          {updateTask ? <FaPencilAlt /> : <FaPlus />}
+        </button>
+      </div>
+      <ul className="list-group">
+        {tasks.map(task => (
+          <li key={task._id} className="list-group-item d-flex justify-content-between align-items-center">
+            <span className={task.isDone ? 'completed' : ''}>{task.taskName}</span>
+            <div>
+              <button className="btn btn-success me-2" onClick={() => handleCheckAndUncheck(task)}>
+                <FaCheck />
+              </button>
+              <button className="btn btn-warning me-2" onClick={() => handleEditTask(task)}>
+                <FaPencilAlt />
+              </button>
+              <button className="btn btn-danger" onClick={() => handleDeleteTask(task._id)}>
+                <FaTrash />
               </button>
             </div>
-
-            <div className='input-group'>
-              <span className='input-group-text'>
-                <FaSearch />
-              </span>
-              <input onChange={handleSearch}
-                className='form-control'
-                type='text'
-                placeholder='Search tasks'
-              />
-            </div>
-          </div>
-
-          {/* List of items */}
-          <div className='d-flex flex-column'>
-            {(tasks|| []).map((item) => (
-              <div key={item._id} className='m-2 p-2 border bg-light rounded-3 d-flex justify-content-between align-items-center'>
-                <span className={item.isDone ? 'text-decoration-line-through' : ''}>{item.taskName}</span>
-                <div>
-                  <button onClick={()=> handleCheckAndUncheck(item)} className='btn btn-success btn-sm me-2' type='button'>
-                    <FaCheck />
-                  </button>
-                  <button onClick={()=> setUpdateTask(item)} className='btn btn-primary btn-sm me-2' type='button'>
-                    <FaPencilAlt />
-                  </button>
-                  <button onClick={() => handleDeleteTask(item._id)} className='btn btn-danger btn-sm me-2' type='button'>
-                    <FaTrash />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Toastify */}
-          <ToastContainer position='top-right' autoClose={3000} hideProgressBar={false} />
-
-          <div className='d-flex justify-content-left mt-4'> <LogoutButton /> </div>
-        </div>
-      </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
