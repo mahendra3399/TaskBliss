@@ -2,6 +2,7 @@ import User from "../Models/user.model.js";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import generateTokenAndSetCookie from '../utils/generateToken.js';
 
 dotenv.config();
 
@@ -71,25 +72,13 @@ export const login = async (req,res) => {
             return res.status(400).json({ error: "Invalid password" });
         }
 
-        const jwtToken = jwt.sign(
-            { username: user.username, _id: user._id },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        )
+        generateTokenAndSetCookie(user._id, res);
 
-        res.cookie('jwt', jwtToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite: 'strict',
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours
-        });
-        
-        res.setHeader('Authorization', `${jwtToken}`);
+
         res.status(201).json({
             _id: user._id,
             fullName: user.fullName,
             username: user.username,
-            jwtToken
         });
 
     } catch (error) {

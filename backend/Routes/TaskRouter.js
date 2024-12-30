@@ -4,12 +4,12 @@ import ensureAuthenticated from '../Middlewares/Auth.js';
 
 const router = express.Router();
 
-router.get('/', fetchAllTasks);
+router.get('/', ensureAuthenticated, fetchAllTasks);
 
-router.post('/',  createTask);
+router.post('/', ensureAuthenticated, createTask);
 
-router.put('/:id',  updateTaskById);
+router.put('/:id', ensureAuthenticated, updateTaskById);
 
-router.delete('/:id', deleteTaskById);
+router.delete('/:id', ensureAuthenticated, deleteTaskById);
 
 export default router;
