@@ -13,6 +13,6 @@ const TaskSchema = new Schema({
     }
 });
 
-const TaskModel = mongoose.model('todos', TaskSchema);
+const TaskModel = mongoose.model('tasks', TaskSchema);
 
 export default TaskModel;
